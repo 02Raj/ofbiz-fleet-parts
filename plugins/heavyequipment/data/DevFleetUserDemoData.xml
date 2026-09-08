@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-engine-xml>
+    <!-- Create a Party for the Tenant Admin -->
+    <Party partyId="DEV_FLEET_ADMIN" partyTypeId="PERSON" statusId="PARTY_ENABLED"/>
+    <Person partyId="DEV_FLEET_ADMIN" firstName="Dev" lastName="Fleet Admin"/>
+    <PartyRole partyId="DEV_FLEET_ADMIN" roleTypeId="ADMIN"/>
+
+    <!-- Create UserLogin for DEV_FLEET -->
+    <!-- The password is 'ofbiz' -->
+    <UserLogin userLoginId="devfleet_admin" partyId="DEV_FLEET_ADMIN" currentPassword="{SHA}47b56994cbc2b6d10aa1be30f70165adb305a41a" requirePasswordChange="N" enabled="Y"/>
+
+    <!-- Assign HE_TENANT_ADMIN role to this user -->
+    <UserLoginSecurityGroup userLoginId="devfleet_admin" groupId="HE_TENANT_ADMIN" fromDate="2001-01-01 12:00:00.0"/>
+</entity-engine-xml>

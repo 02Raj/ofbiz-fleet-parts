@@ -3,7 +3,10 @@ build/
 gradle/wrapper/gradle-wrapper.jar
 applications/*/build
 framework/*/build
-/plugins/
+# Ignore all plugins EXCEPT our custom heavyequipment plugin
+/plugins/*
+!/plugins/heavyequipment/
+!/plugins/heavyequipment/**
 runtime/git-rebase/*
 runtime/SvnInfo.ftl
 runtime/GitInfo.ftl

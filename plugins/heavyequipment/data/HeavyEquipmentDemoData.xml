@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<entity-engine-xml>
+
+    <!-- ======================== Part Categories ======================== -->
+    <HePartCategory heCategoryId="FILTERS" categoryName="Filters" description="Air, Oil, Fuel, Hydraulic, and Cabin Filters"/>
+    <HePartCategory heCategoryId="HYDRAULIC" categoryName="Hydraulic Components" description="Hydraulic pumps, cylinders, hoses, seals, and valves"/>
+    <HePartCategory heCategoryId="ENGINE" categoryName="Engine Parts" description="Engine components, gaskets, belts, and accessories"/>
+    <HePartCategory heCategoryId="BRAKES" categoryName="Brakes & Undercarriage" description="Brake pads, discs, shoes, and undercarriage components"/>
+    <HePartCategory heCategoryId="ELECTRICAL" categoryName="Electrical" description="Alternators, starters, sensors, wiring, and lights"/>
+    <HePartCategory heCategoryId="TRANSMISSION" categoryName="Transmission & Drivetrain" description="Gears, clutches, axles, and drivetrain components"/>
+    <HePartCategory heCategoryId="FLUIDS" categoryName="Fluids & Lubricants" description="Engine oil, hydraulic fluid, coolant, and grease"/>
+    <HePartCategory heCategoryId="WEAR_PARTS" categoryName="Wear Parts" description="Bucket teeth, cutting edges, ground engaging tools"/>
+
+    <!-- Sub-categories -->
+    <HePartCategory heCategoryId="FILT_OIL" categoryName="Oil Filters" parentCategoryId="FILTERS" description="Engine and hydraulic oil filters"/>
+    <HePartCategory heCategoryId="FILT_FUEL" categoryName="Fuel Filters" parentCategoryId="FILTERS" description="Primary and secondary fuel filters"/>
+    <HePartCategory heCategoryId="FILT_AIR" categoryName="Air Filters" parentCategoryId="FILTERS" description="Engine air intake filters"/>
+    <HePartCategory heCategoryId="FILT_HYD" categoryName="Hydraulic Filters" parentCategoryId="FILTERS" description="Hydraulic system return and pressure filters"/>
+
+    <!-- ======================== Demo Parts (Products) ======================== -->
+
+    <!-- Oil Filters -->
+    <Product productId="HE-FILT-001" productTypeId="FINISHED_GOOD" productName="Engine Oil Filter - CAT 1R-0739" internalName="CAT-1R-0739" description="High-efficiency engine oil filter for CAT C7/C9/C13 engines. 99.9% efficiency at 20 microns." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-FILT-002" productTypeId="FINISHED_GOOD" productName="Engine Oil Filter - Komatsu 6742-01-4540" internalName="KOM-6742-01-4540" description="OEM oil filter for Komatsu SAA6D114E engines used in PC300/PC350 excavators." brandName="Komatsu" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-FILT-003" productTypeId="FINISHED_GOOD" productName="Oil Filter - FleetGuard LF17511" internalName="FG-LF17511" description="Heavy-duty oil filter. Cross-references to CAT 1R-0739. For fleet and heavy equipment." brandName="FleetGuard" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- Fuel Filters -->
+    <Product productId="HE-FILT-004" productTypeId="FINISHED_GOOD" productName="Fuel Filter - CAT 1R-0750" internalName="CAT-1R-0750" description="Advanced high-efficiency fuel filter. Removes 98.7% of particles at 4 microns." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-FILT-005" productTypeId="FINISHED_GOOD" productName="Fuel Filter/Water Separator - Donaldson P551005" internalName="DON-P551005" description="Fuel/water separator filter. Alternate for CAT 1R-0750." brandName="Donaldson" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- Hydraulic Filters -->
+    <Product productId="HE-FILT-006" productTypeId="FINISHED_GOOD" productName="Hydraulic Return Filter - CAT 1R-0777" internalName="CAT-1R-0777" description="Hydraulic return line filter for CAT 320/330 series excavators." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- Air Filters -->
+    <Product productId="HE-FILT-007" productTypeId="FINISHED_GOOD" productName="Air Filter Primary - Donaldson P182063" internalName="DON-P182063" description="Primary air filter for CAT D6/D7/D8 dozers and 330/336 excavators." brandName="Donaldson" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- Hydraulic Components -->
+    <Product productId="HE-HYD-001" productTypeId="FINISHED_GOOD" productName="Hydraulic Cylinder Seal Kit - CAT 330" internalName="CAT-330-SEAL-KIT" description="Complete cylinder seal kit for CAT 330 boom cylinder. Includes all o-rings, seals, and backup rings." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-HYD-002" productTypeId="FINISHED_GOOD" productName="Hydraulic Hose 1/2&quot; x 48&quot; 4000PSI" internalName="HYD-HOSE-12-48" description="High-pressure hydraulic hose assembly. SAE 100R2AT, 4000 PSI working pressure." brandName="Gates" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-HYD-003" productTypeId="FINISHED_GOOD" productName="Hydraulic Pump - Rexroth A10VSO" internalName="REX-A10VSO-71" description="Axial piston variable displacement pump. 71 cc/rev. For CAT/Komatsu/Volvo excavators." brandName="Bosch Rexroth" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- Engine Parts -->
+    <Product productId="HE-ENG-001" productTypeId="FINISHED_GOOD" productName="Turbocharger - CAT C9 Engine" internalName="CAT-C9-TURBO" description="Replacement turbocharger for CAT C9 ACERT engine. Used in CAT 330D/336D excavators." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-ENG-002" productTypeId="FINISHED_GOOD" productName="Fan Belt - 2/B68 V-Belt" internalName="GATES-2B68" description="Double V-belt for engine fan drive. Fits multiple CAT and Komatsu models." brandName="Gates" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-ENG-003" productTypeId="FINISHED_GOOD" productName="Water Pump - Komatsu SAA6D114E" internalName="KOM-6741-61-1530" description="Engine water pump for Komatsu SAA6D114E-3 engine. Fits PC300-8, PC350-8." brandName="Komatsu" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- Brakes & Undercarriage -->
+    <Product productId="HE-BRK-001" productTypeId="FINISHED_GOOD" productName="Brake Pad Kit - Volvo A40G" internalName="VOL-A40G-BRAKE" description="Complete front axle brake pad set for Volvo A40G articulated hauler." brandName="Volvo CE" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-BRK-002" productTypeId="FINISHED_GOOD" productName="Track Roller - CAT 330" internalName="CAT-330-ROLLER" description="Bottom track roller (single flange) for CAT 330 series excavators." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- Electrical -->
+    <Product productId="HE-ELC-001" productTypeId="FINISHED_GOOD" productName="Alternator 24V 80A - Bosch" internalName="BOSCH-ALT-24V80A" description="Heavy-duty 24V 80A alternator. Fits CAT, Komatsu, and Volvo equipment." brandName="Bosch" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-ELC-002" productTypeId="FINISHED_GOOD" productName="Pressure Sensor - 344-7390" internalName="CAT-344-7390" description="Hydraulic pressure sensor for CAT 320/330/336 series." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- Wear Parts -->
+    <Product productId="HE-WPT-001" productTypeId="FINISHED_GOOD" productName="Bucket Tooth - CAT J350 Series" internalName="CAT-J350-TOOTH" description="General purpose bucket tooth for CAT J350 adapter system. For 320-336 size excavators." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+    <Product productId="HE-WPT-002" productTypeId="FINISHED_GOOD" productName="Cutting Edge - 8E-4570 (96&quot;)" internalName="CAT-8E4570" description="Bolt-on cutting edge, 96 inch. For CAT D6/D7 dozers." brandName="Caterpillar" quantityUomId="WT_ea" isVirtual="N" isVariant="N"/>
+
+    <!-- ======================== Part Cross-References ======================== -->
+    <!-- CAT 1R-0739 (Oil Filter) cross-references -->
+    <PartCrossReference crossRefId="XREF-001" productId="HE-FILT-001" crossRefType="ALTERNATE" crossRefPartNumber="LF17511" crossRefBrand="FleetGuard" crossRefProductId="HE-FILT-003" notes="Direct replacement" fromDate="2024-01-01 00:00:00"/>
+    <PartCrossReference crossRefId="XREF-002" productId="HE-FILT-001" crossRefType="ALTERNATE" crossRefPartNumber="P551005" crossRefBrand="Donaldson" notes="Compatible aftermarket" fromDate="2024-01-01 00:00:00"/>
+    <PartCrossReference crossRefId="XREF-003" productId="HE-FILT-001" crossRefType="ALTERNATE" crossRefPartNumber="B76" crossRefBrand="Baldwin" notes="Budget alternative" fromDate="2024-01-01 00:00:00"/>
+    <PartCrossReference crossRefId="XREF-004" productId="HE-FILT-001" crossRefType="OEM" crossRefPartNumber="1R-0739" crossRefBrand="Caterpillar" notes="Original CAT part number" fromDate="2024-01-01 00:00:00"/>
+
+    <!-- FleetGuard LF17511 back-reference -->
+    <PartCrossReference crossRefId="XREF-005" productId="HE-FILT-003" crossRefType="OEM" crossRefPartNumber="1R-0739" crossRefBrand="Caterpillar" crossRefProductId="HE-FILT-001" notes="OEM equivalent" fromDate="2024-01-01 00:00:00"/>
+
+    <!-- CAT 1R-0750 (Fuel Filter) cross-references -->
+    <PartCrossReference crossRefId="XREF-006" productId="HE-FILT-004" crossRefType="ALTERNATE" crossRefPartNumber="P551005" crossRefBrand="Donaldson" crossRefProductId="HE-FILT-005" notes="Fuel/water separator equivalent" fromDate="2024-01-01 00:00:00"/>
+    <PartCrossReference crossRefId="XREF-007" productId="HE-FILT-004" crossRefType="OEM" crossRefPartNumber="1R-0750" crossRefBrand="Caterpillar" notes="Original CAT part number" fromDate="2024-01-01 00:00:00"/>
+
+    <!-- Komatsu Oil Filter cross-ref -->
+    <PartCrossReference crossRefId="XREF-008" productId="HE-FILT-002" crossRefType="OEM" crossRefPartNumber="6742-01-4540" crossRefBrand="Komatsu" notes="Original Komatsu part number" fromDate="2024-01-01 00:00:00"/>
+    <PartCrossReference crossRefId="XREF-009" productId="HE-FILT-002" crossRefType="ALTERNATE" crossRefPartNumber="LF9070" crossRefBrand="FleetGuard" notes="FleetGuard equivalent" fromDate="2024-01-01 00:00:00"/>
+
+    <!-- ======================== Demo Equipment (FixedAssets) ======================== -->
+    <FixedAsset fixedAssetId="EQ-CAT330" fixedAssetTypeId="EQUIPMENT" fixedAssetName="CAT 330 GC Excavator" serialNumber="CAT0330GC2024001" description="2024 Caterpillar 330 GC Hydraulic Excavator, 30-ton class"/>
+    <FixedAsset fixedAssetId="EQ-KOM350" fixedAssetTypeId="EQUIPMENT" fixedAssetName="Komatsu PC350LC-8" serialNumber="KMTPC350LC20230045" description="2023 Komatsu PC350LC-8 Excavator, 35-ton class"/>
+    <FixedAsset fixedAssetId="EQ-VOLA40" fixedAssetTypeId="EQUIPMENT" fixedAssetName="Volvo A40G Hauler" serialNumber="VCEA40G2023012" description="2023 Volvo A40G Articulated Dump Truck, 39-ton payload"/>
+    <FixedAsset fixedAssetId="EQ-CATD6" fixedAssetTypeId="EQUIPMENT" fixedAssetName="CAT D6 XE Dozer" serialNumber="CATD6XE2024033" description="2024 Caterpillar D6 XE Electric Drive Dozer"/>
+    <FixedAsset fixedAssetId="EQ-JD544" fixedAssetTypeId="EQUIPMENT" fixedAssetName="John Deere 544P Loader" serialNumber="JD544P2023087" description="2023 John Deere 544P Wheel Loader"/>
+
+    <!-- ======================== Part-Equipment Compatibility ======================== -->
+    <!-- CAT 330 compatible parts -->
+    <PartEquipmentCompatibility productId="HE-FILT-001" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="Engine oil filter for C9 engine"/>
+    <PartEquipmentCompatibility productId="HE-FILT-004" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="Primary fuel filter"/>
+    <PartEquipmentCompatibility productId="HE-FILT-006" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="Hydraulic return filter"/>
+    <PartEquipmentCompatibility productId="HE-FILT-007" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="Primary air filter"/>
+    <PartEquipmentCompatibility productId="HE-HYD-001" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="Boom cylinder seal kit"/>
+    <PartEquipmentCompatibility productId="HE-ENG-001" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="C9 ACERT turbocharger"/>
+    <PartEquipmentCompatibility productId="HE-BRK-002" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="Bottom track roller"/>
+    <PartEquipmentCompatibility productId="HE-ELC-002" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="Hydraulic pressure sensor"/>
+    <PartEquipmentCompatibility productId="HE-WPT-001" fixedAssetId="EQ-CAT330" fromDate="2024-01-01 00:00:00" comments="J350 bucket teeth"/>
+
+    <!-- Komatsu PC350 compatible parts -->
+    <PartEquipmentCompatibility productId="HE-FILT-002" fixedAssetId="EQ-KOM350" fromDate="2024-01-01 00:00:00" comments="Engine oil filter for SAA6D114E"/>
+    <PartEquipmentCompatibility productId="HE-ENG-003" fixedAssetId="EQ-KOM350" fromDate="2024-01-01 00:00:00" comments="Water pump"/>
+    <PartEquipmentCompatibility productId="HE-HYD-003" fixedAssetId="EQ-KOM350" fromDate="2024-01-01 00:00:00" comments="Compatible hydraulic pump"/>
+
+    <!-- Volvo A40G compatible parts -->
+    <PartEquipmentCompatibility productId="HE-BRK-001" fixedAssetId="EQ-VOLA40" fromDate="2024-01-01 00:00:00" comments="Front axle brake pads"/>
+    <PartEquipmentCompatibility productId="HE-ELC-001" fixedAssetId="EQ-VOLA40" fromDate="2024-01-01 00:00:00" comments="24V alternator replacement"/>
+
+    <!-- CAT D6 compatible parts -->
+    <PartEquipmentCompatibility productId="HE-FILT-007" fixedAssetId="EQ-CATD6" fromDate="2024-01-01 00:00:00" comments="Primary air filter"/>
+    <PartEquipmentCompatibility productId="HE-WPT-002" fixedAssetId="EQ-CATD6" fromDate="2024-01-01 00:00:00" comments="96 inch cutting edge"/>
+
+    <!-- ======================== Demo Warehouses (Facilities) ======================== -->
+    <Facility facilityId="MAIN_WH" facilityTypeId="WAREHOUSE" facilityName="Main Parts Warehouse" description="Primary warehouse for heavy equipment parts. 50,000 sq ft facility." squareFootage="50000"/>
+    <Facility facilityId="FIELD_DEPOT" facilityTypeId="WAREHOUSE" facilityName="Field Service Depot" description="Field depot for emergency parts supply and mobile maintenance." squareFootage="5000"/>
+    <Facility facilityId="SAT_STORE" facilityTypeId="WAREHOUSE" facilityName="Satellite Parts Store" description="Small satellite store at the mine site for critical spare parts." squareFootage="2000"/>
+
+    <!-- ======================== Demo Suppliers ======================== -->
+    <PartyGroup partyId="SUP_CAT" groupName="Caterpillar Parts Direct"/>
+    <Party partyId="SUP_CAT" partyTypeId="PARTY_GROUP" statusId="PARTY_ENABLED"/>
+    <PartyRole partyId="SUP_CAT" roleTypeId="SUPPLIER"/>
+
+    <PartyGroup partyId="SUP_KOM" groupName="Komatsu Parts Supply"/>
+    <Party partyId="SUP_KOM" partyTypeId="PARTY_GROUP" statusId="PARTY_ENABLED"/>
+    <PartyRole partyId="SUP_KOM" roleTypeId="SUPPLIER"/>
+
+    <PartyGroup partyId="SUP_FG" groupName="FleetGuard Filtration"/>
+    <Party partyId="SUP_FG" partyTypeId="PARTY_GROUP" statusId="PARTY_ENABLED"/>
+    <PartyRole partyId="SUP_FG" roleTypeId="SUPPLIER"/>
+
+    <PartyGroup partyId="SUP_DON" groupName="Donaldson Company"/>
+    <Party partyId="SUP_DON" partyTypeId="PARTY_GROUP" statusId="PARTY_ENABLED"/>
+    <PartyRole partyId="SUP_DON" roleTypeId="SUPPLIER"/>
+
+    <PartyGroup partyId="SUP_NAPA" groupName="NAPA Heavy Duty"/>
+    <Party partyId="SUP_NAPA" partyTypeId="PARTY_GROUP" statusId="PARTY_ENABLED"/>
+    <PartyRole partyId="SUP_NAPA" roleTypeId="SUPPLIER"/>
+
+</entity-engine-xml>

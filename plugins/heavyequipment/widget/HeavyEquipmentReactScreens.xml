@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screens xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://ofbiz.apache.org/Widget-Screen"
+         xsi:schemaLocation="http://ofbiz.apache.org/Widget-Screen http://ofbiz.apache.org/dtds/widget-screen.xsd">
+
+    <screen name="ReactApp">
+        <section>
+            <actions>
+                <set field="headerItem" value="ReactApp"/>
+                <set field="title" value="Heavy Equipment Platform"/>
+            </actions>
+            <widgets>
+                <platform-specific>
+                    <html>
+                        <html-template><![CDATA[
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heavy Equipment Platform</title>
+</head>
+<body>
+    <div id="ReactHeavyEquipmentRoot"></div>
+</body>
+</html>
+                        ]]></html-template>
+                    </html>
+                </platform-specific>
+                
+                <!-- Inject React JS & CSS -->
+                <section>
+                    <actions>
+                        <script location="component://heavyequipment/src/main/groovy/org/apache/ofbiz/heavyequipment/LoadReactApp.groovy"/>
+                    </actions>
+                    <widgets>
+                        <platform-specific>
+                            <html>
+                                <html-template location="component://heavyequipment/template/includes/AppendJavascript.ftl"/>
+                            </html>
+                        </platform-specific>
+                    </widgets>
+                </section>
+            </widgets>
+        </section>
+    </screen>
+</screens>

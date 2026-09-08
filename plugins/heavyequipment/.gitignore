@@ -1,0 +1,20 @@
+# Node / frontend build artifacts (rebuild with: npm run build)
+vite-react-app/node_modules/
+vite-react-app/dist/
+vite-react-app/.vite/
+
+# Production build output copied into webapp (regenerated on npm run build)
+webapp/heavyequipment/vite-react-app/assets/
+webapp/heavyequipment/vite-react-app/.vite/
+
+# IDE & OS
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+*.log
+
+# Local env / secrets — never commit
+.env
+.env.*
+*.local

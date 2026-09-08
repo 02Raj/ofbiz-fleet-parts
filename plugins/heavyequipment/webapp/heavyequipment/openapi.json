@@ -1,0 +1,630 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Heavy Equipment & Fleet Parts Inventory Platform API",
+    "version": "1.0.0",
+    "description": "## Platform Purpose\n\nA specialized, **ERP-agnostic Parts Inventory Intelligence Platform** for heavy equipment, construction, mining, agricultural, commercial fleet, and maintenance parts organizations.\n\nBuilt on **Apache OFBiz** (Entity Engine + Service Engine) with a **React (Vite) headless frontend**. This platform provides:\n\n- **Parts Master Management** — Full CRUD for parts with OEM, manufacturer, supplier, alternate, and superseded part numbers\n- **Part Number Cross-Reference** — Map CAT ↔ FleetGuard ↔ Donaldson ↔ Baldwin interchanges\n- **Equipment Compatibility** — Associate parts with compatible heavy equipment and fleet assets\n- **Multi-Warehouse Inventory** — Real-time QOH (Quantity on Hand) and ATP (Available to Promise)\n- **Procurement** — Purchase orders, supplier management, goods receiving\n- **Maintenance Work Orders** — Create work orders with automatic parts reservation\n- **Multi-Tenant SaaS** — Platform Admin can provision tenants; tenant users manage day-to-day operations\n\n## Architecture\n\n```\nReact SPA (Frontend) → JSON REST APIs (Groovy) → OFBiz Service Engine → Entity Engine → Database\n```\n\n## Base URL\n\nAll endpoints below are relative to:\n`https://localhost:8443/heavyequipment/control/api`\n\n## Authentication\n\n1. **Login:** `POST /api/login` with form body `USERNAME` and `PASSWORD`\n2. **Session:** Server returns `JSESSIONID` cookie — include in all subsequent requests\n3. **Check Session:** `GET /api/session`\n4. **Logout:** `GET /api/session?action=logout`\n\n## Demo Credentials\n\n| Role | Username | Password |\n|------|----------|----------|\n| Platform Admin | `admin` | `ofbiz` |\n| Tenant Admin | `devfleet_admin` | `ofbiz` |\n| Demo Buyer | `DemoBuyer` | `ofbiz` |\n\n## Demo Data IDs\n\n| Type | Example IDs |\n|------|-------------|\n| Parts | `HE-FILT-001`, `HE-HYD-003`, `HE-ENG-001` |\n| Equipment | `EQ-CAT330`, `EQ-KOM350`, `EQ-VOLA40` |\n| Warehouses | `MAIN_WH`, `FIELD_DEPOT`, `SAT_STORE` |\n| Suppliers | `SUP_CAT`, `SUP_FG`, `SUP_DON`, `SUP_NAPA` |",
+    "contact": {
+      "name": "Heavy Equipment Platform Team",
+      "email": "dev@ofbiz.apache.org"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    },
+    "termsOfService": "http://www.apache.org/licenses/LICENSE-2.0.html"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:8443/heavyequipment/control/api",
+      "description": "Heavy Equipment Plugin API (local dev)"
+    }
+  ],
+  "tags": [
+    { "name": "Authentication", "description": "User login, session management, and logout. Uses OFBiz LoginWorker with JSESSIONID cookie-based sessions." },
+    { "name": "Platform Admin — Tenants", "description": "Multi-tenant SaaS administration. Platform Admin creates and lists logical tenant records. Requires admin role (SUPER/FULLADMIN/BIZADMIN)." },
+    { "name": "Parts Master", "description": "Full CRUD for parts (OFBiz Product entity). Supports search, pagination, soft-delete (DISCONTINUED status), and category filtering. Sprint 1 deliverable." },
+    { "name": "Part Cross-References", "description": "OEM ↔ Manufacturer ↔ Supplier ↔ Alternate ↔ Superseded ↔ Customer part number mappings. Custom PartCrossReference entity." },
+    { "name": "Equipment", "description": "Heavy equipment and fleet asset management using OFBiz FixedAsset entity (type: EQUIPMENT)." },
+    { "name": "Part-Equipment Compatibility", "description": "Map which parts are compatible with which equipment assets. Custom PartEquipmentCompatibility entity." },
+    { "name": "Suppliers", "description": "Supplier (vendor) management using OFBiz Party/PartyGroup with SUPPLIER role." },
+    { "name": "Purchase Orders", "description": "Create purchase orders against suppliers for parts procurement." },
+    { "name": "Inventory", "description": "Warehouse inventory lookup (QOH/ATP) and goods receiving against purchase orders." },
+    { "name": "Work Orders", "description": "Maintenance work order creation with automatic parts reservation from warehouse inventory." }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User Login",
+        "description": "Authenticate user via OFBiz LoginWorker. Returns user profile, roles, and platform admin flag. Sets JSESSIONID session cookie.",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["USERNAME", "PASSWORD"],
+                "properties": {
+                  "USERNAME": { "type": "string", "example": "admin", "description": "OFBiz userLoginId" },
+                  "PASSWORD": { "type": "string", "example": "ofbiz", "description": "User password" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" },
+                "example": {
+                  "success": true,
+                  "userLoginId": "admin",
+                  "partyId": "admin",
+                  "displayName": "admin",
+                  "roles": ["FULLADMIN"],
+                  "isPlatformAdmin": true,
+                  "hasHeavyEquipmentAccess": true,
+                  "sessionId": "ABC123..."
+                }
+              }
+            }
+          },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/session": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Check Session / Logout",
+        "description": "Default: returns current session status. Pass `action=logout` to invalidate session.",
+        "operationId": "session",
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["logout"] },
+            "description": "Pass 'logout' to end session"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session info or logout confirmation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/SessionResponse" },
+                    { "type": "object", "properties": { "success": { "type": "boolean" }, "message": { "type": "string" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenants": {
+      "get": {
+        "tags": ["Platform Admin — Tenants"],
+        "summary": "List All Tenants",
+        "description": "Returns all registered tenant records from the OFBiz Tenant entity. Used by Platform Admin panel.",
+        "operationId": "listTenants",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["list"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of tenants",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Tenant" } },
+                "example": [
+                  { "tenantId": "ACME_CORP", "tenantName": "Acme Construction Ltd", "initialPath": "/heavyequipment/control/main", "disabled": "N" }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Platform Admin — Tenants"],
+        "summary": "Create (Provision) Tenant",
+        "description": "Creates a new logical tenant record. Full DB-per-tenant isolation requires additional TenantDataSource DBA setup.",
+        "operationId": "createTenant",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["create"] } },
+          { "name": "tenantId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "ACME_CORP", "description": "Unique tenant identifier (uppercase, no spaces)" },
+          { "name": "tenantName", "in": "query", "required": true, "schema": { "type": "string" }, "example": "Acme Construction Ltd", "description": "Display company name" },
+          { "name": "initialPath", "in": "query", "schema": { "type": "string" }, "description": "Initial login path (optional)" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant created",
+            "content": {
+              "application/json": {
+                "example": { "success": true, "tenantId": "ACME_CORP", "message": "Tenant created successfully (Requires DBA setup for new database)" }
+              }
+            }
+          },
+          "400": { "description": "Missing params or tenant already exists" }
+        }
+      }
+    },
+    "/parts": {
+      "get": {
+        "tags": ["Parts Master"],
+        "summary": "Parts — List / Get / Search / Update / Delete",
+        "description": "Multi-action endpoint controlled by `action` parameter.\n\n- **list** — Paginated parts list with optional search and status filter\n- **get** — Single part detail with cross-references and compatible equipment\n- **search** — Full-text search across parts AND cross-reference part numbers\n- **update** — Update part fields\n- **delete** — Soft delete (marks as DISCONTINUED)",
+        "operationId": "partsGet",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["list", "get", "search", "update", "delete"] } },
+          { "name": "productId", "in": "query", "schema": { "type": "string" }, "example": "HE-FILT-001", "description": "Required for get, update, delete" },
+          { "name": "search", "in": "query", "schema": { "type": "string" }, "description": "Search term for list action (matches productId, name, SKU, brand, description)" },
+          { "name": "q", "in": "query", "schema": { "type": "string" }, "example": "CAT", "description": "Full-text search query for search action" },
+          { "name": "categoryId", "in": "query", "schema": { "type": "string" }, "example": "FILTERS" },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["ACTIVE", "DISCONTINUED"] } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 50 } },
+          { "name": "productName", "in": "query", "schema": { "type": "string" }, "description": "For update action" },
+          { "name": "internalName", "in": "query", "schema": { "type": "string" }, "description": "SKU — for update action" },
+          { "name": "brandName", "in": "query", "schema": { "type": "string" } },
+          { "name": "description", "in": "query", "schema": { "type": "string" } },
+          { "name": "productWeight", "in": "query", "schema": { "type": "number" } },
+          { "name": "statusId", "in": "query", "schema": { "type": "string", "enum": ["ACTIVE", "DISCONTINUED"] }, "description": "For update action" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success — response varies by action",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "list": {
+                    "summary": "action=list",
+                    "value": {
+                      "parts": [{ "productId": "HE-FILT-001", "productName": "Engine Oil Filter - CAT 1R-0739", "internalName": "CAT-1R-0739", "brandName": "Caterpillar", "statusId": "ACTIVE", "crossRefCount": 3, "compatCount": 2 }],
+                      "pagination": { "page": 1, "pageSize": 50, "totalCount": 20, "totalPages": 1 }
+                    }
+                  },
+                  "get": {
+                    "summary": "action=get",
+                    "value": {
+                      "productId": "HE-FILT-001",
+                      "productName": "Engine Oil Filter - CAT 1R-0739",
+                      "internalName": "CAT-1R-0739",
+                      "brandName": "Caterpillar",
+                      "crossReferences": [{ "crossRefId": "XREF-001", "crossRefType": "ALTERNATE", "crossRefPartNumber": "LF17511", "crossRefBrand": "FleetGuard" }],
+                      "compatibleEquipment": [{ "fixedAssetId": "EQ-CAT330", "fixedAssetName": "CAT 330 GC Excavator" }]
+                    }
+                  },
+                  "search": {
+                    "summary": "action=search",
+                    "value": { "results": [{ "productId": "HE-FILT-001", "productName": "Engine Oil Filter - CAT 1R-0739" }], "totalFound": 1, "query": "CAT" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Part not found" }
+        }
+      },
+      "post": {
+        "tags": ["Parts Master"],
+        "summary": "Create Part",
+        "description": "Creates a new part (OFBiz Product). Automatically creates OEM cross-reference if oemPartNumber is provided.",
+        "operationId": "createPart",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["create"] } },
+          { "name": "productName", "in": "query", "required": true, "schema": { "type": "string" }, "example": "Hydraulic Filter - CAT 1R-0777" },
+          { "name": "internalName", "in": "query", "schema": { "type": "string" }, "description": "SKU / internal part number" },
+          { "name": "brandName", "in": "query", "schema": { "type": "string" }, "example": "Caterpillar" },
+          { "name": "description", "in": "query", "schema": { "type": "string" } },
+          { "name": "oemPartNumber", "in": "query", "schema": { "type": "string" }, "example": "1R-0777", "description": "Auto-creates OEM cross-reference" },
+          { "name": "productWeight", "in": "query", "schema": { "type": "number" } },
+          { "name": "categoryId", "in": "query", "schema": { "type": "string" }, "example": "FILT_HYD" },
+          { "name": "quantityUomId", "in": "query", "schema": { "type": "string", "default": "WT_ea" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Part created",
+            "content": {
+              "application/json": {
+                "example": { "success": true, "productId": "10000", "productName": "Hydraulic Filter - CAT 1R-0777" }
+              }
+            }
+          },
+          "400": { "description": "Missing productName" }
+        }
+      }
+    },
+    "/parts/cross-ref": {
+      "get": {
+        "tags": ["Part Cross-References"],
+        "summary": "Cross-Reference — List / Search / Delete",
+        "description": "Manage part number cross-references.\n\n- **list** — All cross-refs for a part\n- **search** — Find parts by alternate/OEM/supplier part number\n- **delete** — Remove a cross-reference",
+        "operationId": "crossRefGet",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["list", "search", "delete"] } },
+          { "name": "productId", "in": "query", "schema": { "type": "string" }, "example": "HE-FILT-001", "description": "Required for list" },
+          { "name": "partNumber", "in": "query", "schema": { "type": "string" }, "example": "LF17511", "description": "Required for search" },
+          { "name": "crossRefId", "in": "query", "schema": { "type": "string" }, "description": "Required for delete" }
+        ],
+        "responses": {
+          "200": { "description": "Cross-reference results" }
+        }
+      },
+      "post": {
+        "tags": ["Part Cross-References"],
+        "summary": "Add Cross-Reference",
+        "description": "Add OEM, Manufacturer, Supplier, Alternate, Superseded, or Customer part number mapping to a part.",
+        "operationId": "addCrossRef",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["add"] } },
+          { "name": "productId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "HE-FILT-001" },
+          { "name": "crossRefType", "in": "query", "required": true, "schema": { "type": "string", "enum": ["OEM", "MANUFACTURER", "SUPPLIER", "ALTERNATE", "SUPERSEDED", "CUSTOMER"] } },
+          { "name": "crossRefPartNumber", "in": "query", "required": true, "schema": { "type": "string" }, "example": "LF17511" },
+          { "name": "crossRefBrand", "in": "query", "schema": { "type": "string" }, "example": "FleetGuard" },
+          { "name": "crossRefProductId", "in": "query", "schema": { "type": "string" }, "description": "Link to another part in catalog" },
+          { "name": "notes", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cross-reference added",
+            "content": {
+              "application/json": {
+                "example": { "success": true, "crossRefId": "XREF-010", "productId": "HE-FILT-001", "crossRefType": "ALTERNATE", "crossRefPartNumber": "LF17511" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parts/details": {
+      "get": {
+        "tags": ["Parts Master"],
+        "summary": "Get Part Details (Legacy)",
+        "description": "Returns part details with compatible equipment IDs. Prefer `/parts?action=get` for full detail including cross-references.",
+        "operationId": "partDetails",
+        "parameters": [
+          { "name": "productId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "HE-FILT-001" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Part details",
+            "content": {
+              "application/json": {
+                "example": { "productId": "HE-FILT-001", "internalName": "CAT-1R-0739", "description": "High-efficiency engine oil filter", "compatibleEquipment": ["EQ-CAT330", "EQ-CATD6"] }
+              }
+            }
+          },
+          "404": { "description": "Part not found" }
+        }
+      }
+    },
+    "/equipment": {
+      "get": {
+        "tags": ["Equipment"],
+        "summary": "List Equipment",
+        "description": "Returns all heavy equipment / fleet assets (FixedAsset type: EQUIPMENT).",
+        "operationId": "listEquipment",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["list"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Equipment list",
+            "content": {
+              "application/json": {
+                "example": [{ "fixedAssetId": "EQ-CAT330", "fixedAssetName": "CAT 330 GC Excavator", "serialNumber": "CAT330GC-2024-001" }]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Equipment"],
+        "summary": "Create Equipment",
+        "description": "Register new heavy equipment or fleet asset.",
+        "operationId": "createEquipment",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["create"] } },
+          { "name": "fixedAssetName", "in": "query", "required": true, "schema": { "type": "string" }, "example": "Komatsu PC350LC-8 Excavator" },
+          { "name": "serialNumber", "in": "query", "schema": { "type": "string" }, "example": "KOM350-2024-002" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Equipment created",
+            "content": {
+              "application/json": {
+                "example": { "success": true, "fixedAssetId": "10001", "fixedAssetName": "Komatsu PC350LC-8 Excavator" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compatibility": {
+      "get": {
+        "tags": ["Part-Equipment Compatibility"],
+        "summary": "Check Compatibility",
+        "description": "Check if a specific part is compatible with a specific equipment asset.",
+        "operationId": "checkCompatibility",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["check"] } },
+          { "name": "productId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "HE-FILT-001" },
+          { "name": "fixedAssetId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "EQ-CAT330" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Compatibility check result",
+            "content": {
+              "application/json": {
+                "example": { "productId": "HE-FILT-001", "fixedAssetId": "EQ-CAT330", "isCompatible": true }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Part-Equipment Compatibility"],
+        "summary": "Add Compatibility Mapping",
+        "description": "Map a part as compatible with an equipment asset.",
+        "operationId": "addCompatibility",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["add"] } },
+          { "name": "productId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "HE-FILT-001" },
+          { "name": "fixedAssetId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "EQ-CAT330" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mapping created",
+            "content": {
+              "application/json": {
+                "example": { "success": true, "message": "Part mapped to Equipment successfully" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/suppliers": {
+      "get": {
+        "tags": ["Suppliers"],
+        "summary": "List Suppliers",
+        "operationId": "listSuppliers",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["list"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier list",
+            "content": {
+              "application/json": {
+                "example": [{ "partyId": "SUP_CAT", "groupName": "Caterpillar Parts Direct" }]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Suppliers"],
+        "summary": "Create Supplier",
+        "description": "Register a new parts supplier (PartyGroup with SUPPLIER role).",
+        "operationId": "createSupplier",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["create"] } },
+          { "name": "groupName", "in": "query", "required": true, "schema": { "type": "string" }, "example": "NAPA Heavy Duty Parts" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier created",
+            "content": {
+              "application/json": {
+                "example": { "partyId": "10002", "groupName": "NAPA Heavy Duty Parts", "role": "SUPPLIER" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchase-orders": {
+      "post": {
+        "tags": ["Purchase Orders"],
+        "summary": "Create Purchase Order",
+        "description": "Create an auto-approved purchase order against a supplier for a specific part and warehouse.",
+        "operationId": "createPurchaseOrder",
+        "parameters": [
+          { "name": "supplierId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "SUP_CAT", "description": "Supplier party ID" },
+          { "name": "facilityId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "MAIN_WH", "description": "Destination warehouse" },
+          { "name": "productId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "HE-FILT-001" },
+          { "name": "quantity", "in": "query", "required": true, "schema": { "type": "number" }, "example": 10 }
+        ],
+        "responses": {
+          "200": {
+            "description": "PO created",
+            "content": {
+              "application/json": {
+                "example": { "success": true, "orderId": "10001", "statusId": "ORDER_APPROVED" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/warehouse": {
+      "get": {
+        "tags": ["Inventory"],
+        "summary": "Get Warehouse Inventory (QOH & ATP)",
+        "description": "Returns Quantity on Hand and Available to Promise for a part at a specific warehouse. Uses OFBiz `getInventoryAvailableByFacility` service.",
+        "operationId": "warehouseInventory",
+        "parameters": [
+          { "name": "facilityId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "MAIN_WH" },
+          { "name": "productId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "HE-FILT-001" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventory levels",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InventoryLevel" },
+                "example": { "productId": "HE-FILT-001", "facilityId": "MAIN_WH", "quantityOnHandTotal": 50, "availableToPromiseTotal": 45 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/receive": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Receive Goods (Goods Receipt)",
+        "description": "Receive inventory against a purchase order into a warehouse. Uses OFBiz `receiveInventoryProduct` service.",
+        "operationId": "receiveGoods",
+        "parameters": [
+          { "name": "orderId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Purchase order ID" },
+          { "name": "facilityId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "MAIN_WH" },
+          { "name": "productId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "HE-FILT-001" },
+          { "name": "quantityAccepted", "in": "query", "required": true, "schema": { "type": "number" }, "example": 10 },
+          { "name": "orderItemSeqId", "in": "query", "schema": { "type": "string", "default": "00001" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Goods received",
+            "content": {
+              "application/json": {
+                "example": { "success": true, "message": "Inventory Received successfully", "inventoryItemId": "10001" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/work-orders": {
+      "get": {
+        "tags": ["Work Orders"],
+        "summary": "List Work Orders",
+        "description": "List maintenance work orders, optionally filtered by equipment.",
+        "operationId": "listWorkOrders",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["list"] } },
+          { "name": "fixedAssetId", "in": "query", "schema": { "type": "string" }, "example": "EQ-CAT330", "description": "Optional filter by equipment" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Work order list",
+            "content": {
+              "application/json": {
+                "example": [{ "workEffortId": "10001", "fixedAssetId": "EQ-CAT330", "statusId": "WE_CREATED", "description": "Scheduled oil filter replacement" }]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Work Orders"],
+        "summary": "Create Work Order + Reserve Parts",
+        "description": "Creates a maintenance work order (WorkEffort) and automatically reserves parts from warehouse inventory.",
+        "operationId": "createWorkOrder",
+        "parameters": [
+          { "name": "action", "in": "query", "required": true, "schema": { "type": "string", "enum": ["create"] } },
+          { "name": "fixedAssetId", "in": "query", "required": true, "schema": { "type": "string" }, "example": "EQ-CAT330" },
+          { "name": "description", "in": "query", "required": true, "schema": { "type": "string" }, "example": "Replace engine oil filter and hydraulic filter" },
+          { "name": "facilityId", "in": "query", "schema": { "type": "string" }, "example": "MAIN_WH", "description": "Warehouse to reserve parts from" },
+          { "name": "parts", "in": "query", "schema": { "type": "string" }, "example": "HE-FILT-001,HE-FILT-006", "description": "Comma-separated product IDs to reserve" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Work order created with parts reserved",
+            "content": {
+              "application/json": {
+                "example": { "success": true, "workEffortId": "10001", "fixedAssetId": "EQ-CAT330", "status": "CREATED", "reservedParts": ["HE-FILT-001", "HE-FILT-006"] }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "userLoginId": { "type": "string" },
+          "partyId": { "type": "string" },
+          "displayName": { "type": "string" },
+          "roles": { "type": "array", "items": { "type": "string" } },
+          "isPlatformAdmin": { "type": "boolean", "description": "true if user has SUPER, FULLADMIN, or BIZADMIN role" },
+          "hasHeavyEquipmentAccess": { "type": "boolean" },
+          "sessionId": { "type": "string" }
+        }
+      },
+      "SessionResponse": {
+        "type": "object",
+        "properties": {
+          "authenticated": { "type": "boolean" },
+          "userLoginId": { "type": "string" },
+          "displayName": { "type": "string" },
+          "roles": { "type": "array", "items": { "type": "string" } },
+          "isPlatformAdmin": { "type": "boolean" }
+        }
+      },
+      "Tenant": {
+        "type": "object",
+        "properties": {
+          "tenantId": { "type": "string" },
+          "tenantName": { "type": "string" },
+          "initialPath": { "type": "string" },
+          "disabled": { "type": "string", "enum": ["Y", "N"] }
+        }
+      },
+      "Part": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" },
+          "productName": { "type": "string" },
+          "internalName": { "type": "string", "description": "SKU" },
+          "description": { "type": "string" },
+          "brandName": { "type": "string" },
+          "productWeight": { "type": "number" },
+          "quantityUomId": { "type": "string" },
+          "statusId": { "type": "string", "enum": ["ACTIVE", "DISCONTINUED"] },
+          "crossRefCount": { "type": "integer" },
+          "compatCount": { "type": "integer" }
+        }
+      },
+      "CrossReference": {
+        "type": "object",
+        "properties": {
+          "crossRefId": { "type": "string" },
+          "productId": { "type": "string" },
+          "crossRefType": { "type": "string", "enum": ["OEM", "MANUFACTURER", "SUPPLIER", "ALTERNATE", "SUPERSEDED", "CUSTOMER"] },
+          "crossRefPartNumber": { "type": "string" },
+          "crossRefBrand": { "type": "string" },
+          "crossRefProductId": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      },
+      "InventoryLevel": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" },
+          "facilityId": { "type": "string" },
+          "quantityOnHandTotal": { "type": "number", "description": "Total physical quantity in warehouse" },
+          "availableToPromiseTotal": { "type": "number", "description": "Quantity available for allocation (QOH minus reserved)" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  }
+}

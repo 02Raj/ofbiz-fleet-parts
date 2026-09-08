@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<entitymodel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/entitymodel.xsd">
+    <!-- ========================================================= -->
+    <!-- ======================== Defaults ======================= -->
+    <!-- ========================================================= -->
+    <title>Entity of HeavyEquipment Component</title>
+    <description>None</description>
+    <copyright></copyright>
+    <version></version>
+    <!-- ========================================================= -->
+    <!-- ======================== Entities ======================= -->
+    <!-- ========================================================= -->
+
+    <entity entity-name="PartEquipmentCompatibility"
+            package-name="org.apache.ofbiz.heavyequipment"
+            title="Part to Equipment Compatibility Mapping">
+        <field name="productId" type="id"></field>
+        <field name="fixedAssetId" type="id"></field>
+        <field name="fromDate" type="date-time"></field>
+        <field name="thruDate" type="date-time"></field>
+        <field name="comments" type="comment"></field>
+        <prim-key field="productId"/>
+        <prim-key field="fixedAssetId"/>
+        <prim-key field="fromDate"/>
+        <relation type="one" fk-name="PT_EQ_COMP_PROD" rel-entity-name="Product">
+            <key-map field-name="productId"/>
+        </relation>
+        <relation type="one" fk-name="PT_EQ_COMP_FA" rel-entity-name="FixedAsset">
+            <key-map field-name="fixedAssetId"/>
+        </relation>
+    </entity>
+
+    <!-- Part Cross-Reference: Maps relationships between OEM, Manufacturer, Supplier, Alternate, and Superseded part numbers -->
+    <entity entity-name="PartCrossReference"
+            package-name="org.apache.ofbiz.heavyequipment"
+            title="Part Number Cross-Reference">
+        <field name="crossRefId" type="id"><description>Unique cross-reference ID</description></field>
+        <field name="productId" type="id"><description>The primary part (Product) this cross-ref belongs to</description></field>
+        <field name="crossRefType" type="id"><description>Type: OEM, MANUFACTURER, SUPPLIER, ALTERNATE, SUPERSEDED, CUSTOMER</description></field>
+        <field name="crossRefPartNumber" type="long-varchar"><description>The cross-referenced part number string</description></field>
+        <field name="crossRefBrand" type="name"><description>Brand/Manufacturer name for this cross-ref</description></field>
+        <field name="crossRefProductId" type="id"><description>Optional: linked Product ID if the cross-ref part also exists in our system</description></field>
+        <field name="notes" type="comment"><description>Additional notes about this cross-reference</description></field>
+        <field name="fromDate" type="date-time"></field>
+        <field name="thruDate" type="date-time"></field>
+        <prim-key field="crossRefId"/>
+        <relation type="one" fk-name="PT_XREF_PROD" rel-entity-name="Product">
+            <key-map field-name="productId"/>
+        </relation>
+    </entity>
+
+    <!-- Part Category: Heavy equipment specific part categories -->
+    <entity entity-name="HePartCategory"
+            package-name="org.apache.ofbiz.heavyequipment"
+            title="Heavy Equipment Part Category">
+        <field name="heCategoryId" type="id"><description>Unique category ID</description></field>
+        <field name="categoryName" type="name"><description>Category name (e.g., Filters, Hydraulic, Engine)</description></field>
+        <field name="parentCategoryId" type="id"><description>Optional parent for subcategories</description></field>
+        <field name="description" type="description"></field>
+        <prim-key field="heCategoryId"/>
+        <relation type="one" fk-name="HE_CAT_PARENT" rel-entity-name="HePartCategory">
+            <key-map field-name="parentCategoryId" rel-field-name="heCategoryId"/>
+        </relation>
+    </entity>
+
+    <!-- Links a tenant to its admin/operator users -->
+    <entity entity-name="HeTenantUser"
+            package-name="org.apache.ofbiz.heavyequipment"
+            title="Tenant User Mapping">
+        <field name="heTenantUserId" type="id"/>
+        <field name="tenantId" type="id"/>
+        <field name="userLoginId" type="id-vlong"/>
+        <field name="partyId" type="id"/>
+        <field name="companyPartyId" type="id"><description>PartyGroup for the tenant company</description></field>
+        <field name="roleType" type="id"><description>TENANT_ADMIN, INVENTORY_MGR, etc.</description></field>
+        <field name="fromDate" type="date-time"/>
+        <field name="thruDate" type="date-time"/>
+        <prim-key field="heTenantUserId"/>
+        <relation type="one" fk-name="HE_TNTUSR_TNT" rel-entity-name="Tenant">
+            <key-map field-name="tenantId"/>
+        </relation>
+    </entity>
+
+</entitymodel>
